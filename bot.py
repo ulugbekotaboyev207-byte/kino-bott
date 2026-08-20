@@ -32,7 +32,7 @@ def is_admin(user_id: int) -> bool:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Salom! 👋\n\n"
+        "Salom!\n\n"
         "Instagramdagi videoning raqamini yuboring, men sizga to'liq videoni jo'nataman.\n\n"
         "Masalan: 1"
     )
@@ -52,16 +52,13 @@ async def handle_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if file_id:
         await update.message.reply_video(
             video=file_id,
-            caption=f"🎬 Video #{text}",
+            caption=f"Video #{text}",
         )
     else:
         await update.message.reply_text(
-            f"❌ {text}-raqamli video topilmadi.\n"
+            f"{text}-raqamli video topilmadi.\n"
             "Raqamni tekshirib qaytadan yuboring."
-        )
-
-
-async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        )async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if not is_admin(user_id):
@@ -75,5 +72,22 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     if not re.fullmatch(r"\d+", caption):
         await update.message.reply_text(
-            "⚠️ Video caption(izoh)ida faqat raqam bo'lishi kerak.\n"
-            "Ma
+            "Video caption(izoh)ida faqat raqam bo'lishi kerak.\n"
+            "Masalan, videoni yuborishda captionga: 1"
+        )
+        return
+
+    db.add_video(caption, video.file_id)
+    await update.message.reply_text(
+        f"{caption}-raqamli video saqlandi!\n"
+        f"Jami videolar: {db.count_videos()} ta"
+    )
+
+
+async def delete_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    if not is_admin(user_id):
+        return
+
+    if not context.args:
+        await update.message.reply_text("Foydalanish: /d
